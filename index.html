@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><title>Boda Cisneros Perez</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{color-scheme:light;--bg:#faf8f5;--card:#fff;--tx:#2b2724;--mu:#7d746c;--ac:#b5835a;--ac2:#f3e8dd;--ln:#e8e1d9;--ok:#5f8f6b;--bad:#b84a4a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#1d1a18;--card:#282421;--tx:#f1ebe5;--mu:#a69c92;--ac:#d4a47a;--ac2:#3a2f27;--ln:#3a3531}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 Georgia,'Times New Roman',serif}
+h1,h2,h3{font-weight:400;margin:0 0 .5rem}h2{font-size:1.6rem}h3{font-size:1.1rem}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--card);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--card);border-bottom:1px solid var(--ln);z-index:9;padding:.6rem 1rem 0}
+.brand{font-size:1.2rem;color:var(--ac);letter-spacing:.05em}
+nav{display:flex;gap:.25rem;overflow-x:auto;padding:.4rem 0;font-family:system-ui,sans-serif;font-size:13px}
+nav a{white-space:nowrap;padding:.4rem .75rem;border-radius:99px;color:var(--mu);text-decoration:none}
+nav a.on{background:var(--ac);color:#fff}
+main{max-width:1000px;margin:auto;padding:1rem}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:1rem;margin-bottom:1rem}
+.grid{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.kpi{background:var(--ac2);border-radius:10px;padding:.7rem}.kpi small{color:var(--mu);font-family:system-ui,sans-serif}.kpi b{display:block;font-size:1.3rem}
+.bar{height:10px;background:var(--ln);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.bar.bad i{background:var(--bad)}
+.alert{background:#f6dcdc;color:#7a2020;padding:.6rem;border-radius:8px;margin:.6rem 0;font-family:system-ui,sans-serif}
+input,select,textarea,button{font:14px system-ui,sans-serif;color:var(--tx);background:var(--bg);border:1px solid var(--ln);border-radius:8px;padding:.45rem .6rem;max-width:100%}
+textarea{width:100%;min-height:70px}
+button{cursor:pointer}button.p{background:var(--ac);color:#fff;border:0}button.x{border:0;background:none;color:var(--bad)}
+label{display:block;font:12px system-ui,sans-serif;color:var(--mu);margin:.4rem 0 .15rem}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.task{display:flex;gap:.6rem;align-items:center;padding:.45rem 0;border-bottom:1px solid var(--ln)}.task.d span.t{text-decoration:line-through;color:var(--mu)}
+.task small{color:var(--mu);font-family:system-ui,sans-serif;display:block}.task .g{flex:1}
+.chip{font:11px system-ui,sans-serif;background:var(--ac2);padding:.1rem .5rem;border-radius:99px}
+.cat{display:grid;grid-template-columns:110px 1fr 90px;gap:.5rem;align-items:center;font:13px system-ui,sans-serif;margin:.35rem 0}
+.cat .bar{height:14px;position:relative}.cat .bar b{position:absolute;left:0;top:0;height:100%;background:var(--ac2);border-right:2px solid var(--ac)}
+@media(max-width:560px){.cat{grid-template-columns:80px 1fr}.cat em{display:none}}
+@media print{header,.noprint,body::before{display:none!important}}
+</style></head><body>
+<header><div class="row" style="justify-content:space-between"><span class="brand">♡ Boda Cisneros Perez</span><small id="cloud" style="color:var(--mu);font:12px system-ui;margin-right:auto;margin-left:.6rem"></small><span class="row noprint" style="gap:.3rem"><button onclick="exportar()">Respaldar datos</button><button onclick="document.getElementById('imp').click()">Importar</button><input id="imp" type="file" accept=".json,application/json" style="display:none" onchange="importar(this.files[0]);this.value=''"><button onclick="window.print()">PDF</button></span></div><nav id="nav"></nav></header>
+<main id="app"></main>
+<script>
+const AREAS=[
+['foto','Fotografía y Video',[['estilo','Estilo (documental, clásico…)'],['horas','Horas de cobertura'],['entregables','Entregables (álbum, video highlight, dron)','t'],['tomas','Tomas imprescindibles','t'],['crono','Cronograma de cobertura','t']]],
+['salon','Salón y Banquete',[['cap','Capacidad'],['fecha','Fecha del evento','date'],['menu','Menú','t'],['degus','Degustación (fecha/notas)'],['mobi','Mobiliario','t'],['cpp','Costo por persona'],['hor','Horarios'],['perm','Permisos','t']]],
+['musica','Música y Entretenimiento',[['tipo','DJ o banda'],['playlist','Playlist','t'],['momentos','Momentos clave (entrada, primer baile, brindis)','t']]],
+['deco','Decoración y Flores',[['paleta','Paleta de colores'],['tema','Tema'],['arreglos','Tipo de arreglos','t'],['cant','Cantidades','t']]],
+['vestuario','Vestuario y Belleza',[['vestido','Vestido / traje'],['pruebas','Fechas de pruebas'],['belleza','Maquillaje y peinado','t']]],
+['invitados','Invitaciones e Invitados',[['lista','Lista de invitados (uno por línea)','t'],['rsvp','Confirmaciones RSVP (confirmados / total)'],['mesas','Mesas','t'],['dieta','Restricciones alimenticias','t']]],
+['transporte','Transporte',[['ida','Traslados novios y familia','t'],['inv','Transporte para invitados','t']]],
+['otros','Luna de miel y Otros',[['destino','Destino luna de miel'],['reserva','Reservas y vuelos','t'],['otros','Otros pendientes','t']]]];
+const WHEN=['12 meses antes','9 meses antes','6 meses antes','3 meses antes','1 mes antes','Semana de la boda'];
+const DUE=['2026-11-15','2026-12-15','2027-01-17','2027-04-17','2027-06-17','2027-07-10'];
+const T=(t,w,area,who='Ambos')=>({id:Math.random().toString(36).slice(2),t,w,area,who,due:DUE[w],done:false});
+function seed(s){const a=s.areas;Object.values(a).forEach(x=>x.items=[]);
+Object.assign(a.foto,{assigned:2825,quoted:2825,payDate:'2027-01-17',providers:[{n:'Fotografía y video (cotización inicial)',c:'',pk:'Paquete base',price:2825,inc:'Por definir según lo que ocupemos',r:4,nt:'Cotizar según horas, álbum, video highlight y dron',st:'En cotización'}],items:[{n:'Paquete base (referencia)',p:2825,on:true},{n:'Álbum impreso',p:0,on:false},{n:'Video highlight',p:0,on:false},{n:'Dron',p:0,on:false},{n:'Horas extra de cobertura',p:0,on:false}]});
+Object.assign(a.salon,{assigned:4275,quoted:4275,payDate:'2026-12-15',extra:{cap:'150',fecha:s.date,cpp:'28.5',cppmin:'25.5',inv:'150'},providers:[{n:'Salón y banquete (por persona)',c:'',pk:'Banquete por persona',price:4275,inc:'$25.50–$28.50 por persona × 150 invitados = $3,825–$4,275',r:4,nt:'',st:'En cotización'}]});
+return s}
+const DEF=()=>seed({total:15000,date:'2027-07-17',start:'2026-11-01',tasks:[T('Definir fecha y presupuesto',0,'salon'),T('Armar lista de invitados',0,'invitados'),T('Reservar salón',0,'salon'),T('Contratar fotógrafo y video',1,'foto'),T('Elegir catering y menú',1,'salon'),T('Contratar DJ o banda',2,'musica'),T('Elegir vestuario',2,'vestuario'),T('Definir paleta y flores',2,'deco'),T('Enviar invitaciones',3,'invitados'),T('Cotizar transporte',3,'transporte'),T('Prueba de menú y vestuario',4,'salon'),T('Confirmar RSVP y mesas',4,'invitados'),T('Confirmar a todos los proveedores',5,'otros'),T('Entregar cronograma final',5,'foto')],
+areas:Object.fromEntries(AREAS.map(a=>[a[0],{assigned:0,quoted:0,paid:0,payDate:'',providers:[],chosen:{contrato:'',fecha:'',docs:''},notes:'',extra:{}}]))});
+let S;try{S=JSON.parse(localStorage.getItem('boda2'))}catch(e){}
+if(!S||!S.areas)S=DEF();
+const save=()=>{try{localStorage.setItem('boda2',JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const m=n=>'$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:2,minimumFractionDigits:Number.isInteger(+n||0)?0:2});
+const name=k=>(AREAS.find(a=>a[0]==k)||[0,'General'])[1];
+const pct=l=>l.length?Math.round(l.filter(t=>t.done).length/l.length*100):0;
+const fd=d=>d?new Date(d+'T12:00').toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'}):'sin fecha';
+function totals(){let sp=0,co=0;AREAS.forEach(a=>{const x=S.areas[a[0]];sp+=+x.paid||0;co+=Math.max((+x.quoted||0)-(+x.paid||0),0)});return{sp,co,av:S.total-sp-co,over:sp+co>S.total}}
+function set(path,v,type){const p=path.split('.');let o=S;while(p.length>1)o=o[p.shift()];o[p[0]]=type=='number'?+v||0:v;save();render()}
+const inp=(path,v,type='text')=>`<input type="${type}" value="${esc(v)}" onchange="set('${path}',this.value,'${type}')">`;
+function taskList(list){if(!list.length)return'<p style="color:var(--mu)">Sin tareas.</p>';
+return list.map(t=>`<div class="task ${t.done?'d':''}"><input type="checkbox" ${t.done?'checked':''} onchange="tog('${t.id}')"><div class="g"><span class="t">${esc(t.t)}</span><small>${fd(t.due)} · ${esc(t.who)} · ${name(t.area)}</small></div><button class="x noprint" onclick="editT('${t.id}')" style="color:var(--mu)">Editar</button><button class="x noprint" onclick="delT('${t.id}')">✕</button></div>`).join('')}
+const tog=id=>{const t=S.tasks.find(x=>x.id==id);t.done=!t.done;save();render()};
+const delT=id=>{S.tasks=S.tasks.filter(x=>x.id!=id);save();render()};
+const editT=id=>{const t=S.tasks.find(x=>x.id==id);const n=prompt('Tarea:',t.t);if(n===null)return;t.t=n||t.t;t.who=prompt('Responsable:',t.who)||t.who;const d=prompt('Fecha límite (AAAA-MM-DD):',t.due);if(d!==null)t.due=d;save();render()};
+function addT(area){const t=$('nt').value.trim();if(!t)return;S.tasks.push({id:Math.random().toString(36).slice(2),t,w:+$('nw').value,area:area||$('na').value,who:$('nq').value||'Ambos',due:$('nd').value,done:false});save();render()}
+function addForm(area){return`<div class="row noprint" style="margin-top:.7rem"><input id="nt" placeholder="Nueva tarea" style="flex:1 1 160px"><select id="nw">${WHEN.map((w,i)=>`<option value="${i}">${w}</option>`).join('')}</select>${area?'':`<select id="na">${AREAS.map(a=>`<option value="${a[0]}">${a[1]}</option>`).join('')}</select>`}<input id="nq" placeholder="Responsable" size="10"><input id="nd" type="date"><button class="p" onclick="addT('${area||''}')">Agregar</button></div>`}
+function checklist(list,area){return WHEN.map((w,i)=>{const l=list.filter(t=>t.w==i);return l.length?`<h3 style="margin-top:.8rem;color:var(--ac)">${w}</h3>`+taskList(l):''}).join('')+addForm(area)}
+function home(){const t=totals(),used=S.total?Math.min((t.sp+t.co)/S.total*100,100):0;
+const pend=S.tasks.filter(x=>!x.done).sort((a,b)=>(a.due||'9')>(b.due||'9')?1:-1).slice(0,5);
+const pays=AREAS.flatMap(a=>sched(a[0]).map((p,j)=>({...p,n:a[1],done:(S.areas[a[0]].pf||{})[j]})).filter(p=>!p.done)).sort((a,b)=>a.d>b.d?1:-1).slice(0,5);
+const dl=Math.max(Math.ceil((new Date(S.date+'T12:00')-new Date())/864e5),0),el=Math.min(100,Math.max(0,(new Date()-new Date(S.start+'T12:00'))/(new Date(S.date+'T12:00')-new Date(S.start+'T12:00'))*100));
+return`<div class="card"><h2>Boda Cisneros Perez</h2><div class="row"><div class="kpi"><small>Faltan</small><b>${dl} días</b></div><div><label>Fecha de la boda</label>${inp('date',S.date,'date')}</div><div><label>Inicio de planeación</label>${inp('start',S.start,'date')}</div><div><label>Fecha límite de liquidación</label>${inp('limit',S.limit||'2027-07-01','date')}</div></div><div class="bar" style="margin-top:.7rem"><i style="width:${el}%"></i></div><small style="color:var(--mu);font-family:system-ui">Tiempo transcurrido de la planeación · montos en USD</small></div><div class="card"><h2>Resumen de presupuesto</h2>
+<label>Presupuesto total de la boda</label>${inp('total',S.total,'number')}
+<div class="grid" style="margin:.8rem 0"><div class="kpi"><small>Gastado</small><b>${m(t.sp)}</b></div><div class="kpi"><small>Comprometido</small><b>${m(t.co)}</b></div><div class="kpi"><small>Saldo disponible</small><b style="color:${t.av<0?'var(--bad)':'var(--ok)'}">${m(t.av)}</b></div></div>
+<div class="bar ${t.over?'bad':''}"><i style="width:${used}%"></i></div>
+${t.over?`<div class="alert">⚠ Te excedes del presupuesto por ${m(-t.av)}.</div>`:''}
+<h3 style="margin-top:1rem">Por categoría <small style="font-family:system-ui;color:var(--mu)">(barra = costo real · línea = asignado)</small></h3>
+${AREAS.map(a=>{const x=S.areas[a[0]],mx=Math.max(x.assigned,x.quoted,1),r=x.quoted>x.assigned&&x.assigned>0;return`<div class="cat"><a href="#${a[0]}" style="color:var(--tx)">${a[1].split(' ')[0]}</a><div class="bar ${r?'bad':''}"><i style="width:${x.quoted/mx*100}%"></i></div><em>${m(x.quoted)} / ${m(x.assigned)}</em></div>`}).join('')}</div>
+<div class="card"><h2>Checklist general</h2><div class="row"><b>${pct(S.tasks)}%</b><div class="bar" style="flex:1"><i style="width:${pct(S.tasks)}%"></i></div></div>
+<div class="row" style="margin:.5rem 0">${AREAS.map(a=>`<span class="chip">${a[1].split(' ')[0]} ${pct(S.tasks.filter(t=>t.area==a[0]))}%</span>`).join('')}</div>${checklist(S.tasks)}</div>
+<div class="card"><h2>Próximos pasos</h2><h3>Tareas más urgentes</h3>${taskList(pend)}<h3 style="margin-top:1rem">Pagos próximos</h3>${pays.length?pays.map(p=>`<div class="task"><div class="g">${p.n} · ${p.l}<small>${fd(p.d)}</small></div><b>${m(p.a)}</b></div>`).join(''):'<p style="color:var(--mu)">Sin pagos programados.</p>'}</div>${cal()}`}
+function area(k){const a=AREAS.find(x=>x[0]==k),x=S.areas[k],list=S.tasks.filter(t=>t.area==k),P='areas.'+k+'.';
+const pend=Math.max(x.quoted-x.paid,0);
+return`<h2>${a[1]}</h2><div class="card"><h3>Checklist del área · ${pct(list)}%</h3><div class="bar"><i style="width:${pct(list)}%"></i></div>${checklist(list,k)}</div>
+<div class="card"><h3>Presupuesto del área</h3><div class="grid"><div><label>Monto asignado</label>${inp(P+'assigned',x.assigned,'number')}</div><div><label>Costo cotizado</label>${inp(P+'quoted',x.quoted,'number')}</div><div><label>Anticipo pagado</label>${inp(P+'paid',x.paid,'number')}</div><div><label>Próxima fecha de pago</label>${inp(P+'payDate',x.payDate,'date')}</div></div>
+<div class="kpi" style="margin-top:.7rem"><small>Saldo pendiente</small><b>${m(pend)}</b></div>${x.quoted>x.assigned&&x.assigned?'<div class="alert">⚠ El costo supera lo asignado.</div>':''}</div>
+${items(k)}${k=='salon'?salonCalc():''}${plan(k)}<div class="card"><h3>Detalles de ${a[1]}</h3>${a[2].map(f=>`<label>${f[1]}</label>${f[2]=='t'?`<textarea onchange="set('${P}extra.${f[0]}',this.value)">${esc(x.extra[f[0]])}</textarea>`:inp(P+'extra.'+f[0],x.extra[f[0]],f[2]||'text')}`).join('')}</div>
+<div class="card"><h3>Comparador de proveedores</h3>${x.providers.map((p,i)=>`<div class="card" style="background:var(--bg)"><div class="row" style="justify-content:space-between"><b>${esc(p.n)}</b><span><select onchange="setSt('${k}',${i},this.value)">${['En cotización','Contratado','Descartado'].map(s=>`<option ${p.st==s?'selected':''}>${s}</option>`).join('')}</select><button class="x" onclick="delP('${k}',${i})">✕</button></span></div><small>${esc(p.c)} · ${esc(p.pk)} · <b>${m(p.price)}</b> · ${'★'.repeat(p.r)}${'☆'.repeat(5-p.r)}</small><br><small>Incluye: ${esc(p.inc)}</small><br><small>${esc(p.nt)}</small></div>`).join('')||'<p style="color:var(--mu)">Aún no hay proveedores.</p>'}
+<div class="row noprint"><input id="pn" placeholder="Nombre"><input id="pc" placeholder="Contacto"><input id="pk" placeholder="Paquete"><input id="pp" type="number" placeholder="Precio" style="width:100px"><input id="pi" placeholder="Qué incluye"><select id="pr">${[5,4,3,2,1].map(n=>`<option value="${n}">${n} ★</option>`).join('')}</select><input id="pt" placeholder="Notas"><button class="p" onclick="addP('${k}')">Agregar</button></div></div>
+<div class="card"><h3>Proveedor elegido</h3>${(()=>{const c=x.providers.find(p=>p.st=='Contratado');return c?`<p><b>${esc(c.n)}</b> · ${m(c.price)}</p>`:'<p style="color:var(--mu)">Marca un proveedor como “Contratado”.</p>'})()}<label>Contrato (notas / enlace)</label>${inp(P+'chosen.contrato',x.chosen.contrato)}<label>Fecha de cita con el proveedor</label>${inp(P+'chosen.cita',x.chosen.cita,'date')}<label>Fecha del servicio</label>${inp(P+'chosen.fecha',x.chosen.fecha,'date')}<label>Documentos adjuntos (enlaces o nombres)</label>${inp(P+'chosen.docs',x.chosen.docs)}</div>
+<div class="card"><h3>Notas e ideas</h3><textarea onchange="set('${P}notes',this.value)" placeholder="Inspiración, referencias, preguntas pendientes…">${esc(x.notes)}</textarea></div>`}
+function cal(){const ev=[];AREAS.forEach(a=>{const x=S.areas[a[0]];sched(a[0]).forEach((p,j)=>{if(!(x.pf||{})[j])ev.push([p.d,'💳 '+a[1]+' · '+p.l+' · '+m(p.a)])});if(0)ev.push([x.payDate,'💳 Pago '+a[1]+' · '+m(x.quoted-x.paid)]);if(x.chosen.cita)ev.push([x.chosen.cita,'🤝 Cita con proveedor: '+a[1]]);if(x.chosen.fecha)ev.push([x.chosen.fecha,'📅 Servicio: '+a[1]])});S.tasks.filter(t=>!t.done&&t.due).forEach(t=>ev.push([t.due,'☐ '+t.t]));ev.push([S.date,'💍 ¡Nuestra boda!']);ev.sort((a,b)=>a[0]>b[0]?1:-1);let cur='',h='';ev.forEach(e=>{const mo=new Date(e[0]+'T12:00').toLocaleDateString('es-MX',{month:'long',year:'numeric'});if(mo!=cur){cur=mo;h+=`<h3 style="margin-top:.8rem;color:var(--ac);text-transform:capitalize">${mo}</h3>`}h+=`<div class="task"><div class="g">${esc(e[1])}</div><small>${fd(e[0])}</small></div>`});return`<div class="card"><h2>Calendario</h2>${h}</div>`}
+function items(k){const x=S.areas[k],tot=x.items.filter(i=>i.on).reduce((s,i)=>s+(+i.p||0),0);return`<div class="card"><h3>Cotizador por conceptos</h3><p style="color:var(--mu);margin:0 0 .4rem">Marca lo que sí ocuparán; el total puede ser el costo cotizado.</p>${x.items.map((i,j)=>`<div class="task"><input type="checkbox" ${i.on?'checked':''} onchange="itm('${k}',${j},'on',this.checked)"><div class="g">${esc(i.n)}</div><input type="number" value="${i.p}" style="width:100px" onchange="itm('${k}',${j},'p',+this.value)"><button class="x" onclick="itm('${k}',${j},'del')">✕</button></div>`).join('')}<div class="row noprint" style="margin-top:.5rem"><input id="in" placeholder="Concepto"><input id="ip" type="number" placeholder="Precio" style="width:100px"><button onclick="addI('${k}')">Agregar</button></div><div class="kpi" style="margin-top:.6rem"><small>Total seleccionado</small><b>${m(tot)}</b></div><button class="p noprint" style="margin-top:.5rem" onclick="set('areas.${k}.quoted',${tot},'number')">Usar como costo cotizado</button></div>`}
+function salonCalc(){const x=S.areas.salon.extra,n=+x.inv||0,lo=n*(+x.cppmin||0),hi=n*(+x.cpp||0);return`<div class="card"><h3>Estimado por persona</h3><div class="grid"><div><label>Invitados</label>${inp('areas.salon.extra.inv',x.inv,'number')}</div><div><label>Precio mínimo / persona</label>${inp('areas.salon.extra.cppmin',x.cppmin,'number')}</div><div><label>Precio máximo / persona</label>${inp('areas.salon.extra.cpp',x.cpp,'number')}</div></div><div class="kpi" style="margin-top:.6rem"><small>Rango estimado</small><b>${m(lo)} – ${m(hi)}</b></div><button class="p noprint" style="margin-top:.5rem" onclick="set('areas.salon.quoted',${hi},'number')">Usar el máximo como costo cotizado</button></div>`}
+function sched(k){const x=S.areas[k],q=+x.quoted||0;if(!q)return[];const dep=x.dep||'2026-11-15',lim=S.limit||'2027-07-01',a0=Math.round(q*20)/100,out=[{d:dep,a:a0,l:'Apartado 20%'}];let y=+dep.slice(0,4),mo=+dep.slice(5,7);const ds=[];for(let i=0;i<48;i++){mo++;if(mo>12){mo=1;y++}const d=y+'-'+String(mo).padStart(2,'0')+'-01';if(!(d<=lim))break;ds.push(d)}if(!ds.length)ds.push(lim);const n=ds.length,rem=Math.round((q-a0)*100)/100,e=Math.floor(rem/n*100)/100;ds.forEach((d,i)=>out.push({d,a:i==n-1?Math.round((rem-e*(n-1))*100)/100:e,l:'Mensualidad '+(i+1)+' de '+n}));return out}
+function sync(){AREAS.forEach(a=>{const x=S.areas[a[0]],s=sched(a[0]);if(!x.pf)x.pf={};if(x.pu)x.paid=Math.round(s.reduce((t,p,j)=>t+(x.pf[j]?p.a:0),0)*100)/100;const nx=s.find((p,j)=>!x.pf[j]);if(nx)x.payDate=nx.d});save()}
+function plan(k){const x=S.areas[k],s=sched(k);return`<div class="card"><h3>Plan de pagos</h3><p style="color:var(--mu);margin:0 0 .4rem">Apartado del 20% y el resto en mensualidades iguales el día 1 de cada mes, hasta liquidar a más tardar el ${fd(S.limit||'2027-07-01')}. Al marcar un pago, el “anticipo pagado” se actualiza solo.</p><label>Fecha del apartado</label>${inp('areas.'+k+'.dep',x.dep||'2026-11-15','date')}${s.map((p,j)=>`<div class="task"><input type="checkbox" ${(x.pf||{})[j]?'checked':''} onchange="togPay('${k}',${j})"><div class="g">${p.l}<small>${fd(p.d)}</small></div><b>${m(p.a)}</b></div>`).join('')||'<p style="color:var(--mu)">Captura un costo cotizado para generar el plan.</p>'}</div>`}
+function togPay(k,j){const x=S.areas[k];x.pf=x.pf||{};x.pf[j]=!x.pf[j];x.pu=1;render()}
+const BR=()=>({n1:'',n2:'',i1:'C',i2:'P',tag:'',hash:'#BodaCisnerosPerez',style:'circulo',font:'Georgia, serif',colors:['#b5835a','#f3e8dd','#7d746c','#2b2724'],concept:'',ideas:'',mood:'',dress_g:'',dress_f:'',dress_c:'',dyn:'',esp:''});
+function nm(a,i,v){S.brand[a]=v;if(v.trim())S.brand[i]=v.trim()[0].toUpperCase();save();render()}
+function brand(){S.brand=S.brand||BR();const b=S.brand,c=b.colors,d=S.date.split('-').reverse().join(' · ');
+const ta=(k,l,ph)=>`<label>${l}</label><textarea placeholder="${ph}" onchange="set('brand.${k}',this.value)">${esc(b[k])}</textarea>`;
+const sel=(k,o)=>`<select onchange="set('brand.${k}',this.value)">${o.map(x=>`<option value="${x[0]}" ${b[k]==x[0]?'selected':''}>${x[1]}</option>`).join('')}</select>`;
+const fr=b.style=='marco'?`<rect x="12" y="12" width="176" height="176" rx="14" fill="none" stroke="${c[0]}" stroke-width="2"/>`:b.style=='linea'?`<line x1="40" y1="50" x2="160" y2="50" stroke="${c[0]}"/><line x1="40" y1="165" x2="160" y2="165" stroke="${c[0]}"/>`:`<circle cx="100" cy="100" r="92" fill="none" stroke="${c[0]}" stroke-width="2"/><circle cx="100" cy="100" r="86" fill="none" stroke="${c[0]}" stroke-width=".7"/>`;
+const tx=(x,y,s,t,f)=>`<text x="${x}" y="${y}" font-size="${s}" text-anchor="middle" fill="${f||c[0]}" font-family="${b.font}">${t}</text>`;
+const svg=`<svg viewBox="0 0 200 200" style="width:200px;max-width:100%">${fr}${tx(64,114,54,esc(b.i1))}${tx(100,106,24,'&amp;',c[2])}${tx(136,114,54,esc(b.i2))}${tx(100,148,11,d,c[2])}</svg>`;
+return`<h2>Branding de la boda</h2><p style="color:var(--mu)">Dirección creativa de Boda Cisneros Perez. El color principal se aplica a toda la plataforma.</p>
+<div class="card"><div class="row" style="gap:1.5rem"><div style="background:${c[1]};border-radius:14px;padding:1rem;text-align:center">${svg}</div><div style="flex:1;min-width:200px"><div style="font-family:${b.font};font-size:1.8rem;color:${c[0]}">${esc(b.n1)||'Nombre'} &amp; ${esc(b.n2)||'Nombre'}</div><div style="font-family:${b.font};color:var(--mu)">${d}</div><p>${esc(b.tag)}</p><b>${esc(b.hash)}</b></div></div></div>
+<div class="card"><h3>Identidad</h3><div class="grid"><div><label>Nombre 1</label><input value="${esc(b.n1)}" onchange="nm('n1','i1',this.value)"></div><div><label>Nombre 2</label><input value="${esc(b.n2)}" onchange="nm('n2','i2',this.value)"></div><div><label>Inicial 1</label>${inp('brand.i1',b.i1)}</div><div><label>Inicial 2</label>${inp('brand.i2',b.i2)}</div><div><label>Lema o frase</label>${inp('brand.tag',b.tag)}</div><div><label>Hashtag</label>${inp('brand.hash',b.hash)}</div><div><label>Estilo del logotipo</label>${sel('style',[['circulo','Círculo'],['marco','Marco'],['linea','Líneas']])}</div><div><label>Tipografía</label>${sel('font',[['Georgia, serif','Clásica (Georgia)'],['Palatino, serif','Elegante (Palatino)'],['Brush Script MT, cursive','Caligráfica'],['system-ui, sans-serif','Moderna']])}</div></div>
+<h3 style="margin-top:1rem">Paleta</h3><div class="row">${['Principal','Fondo','Texto suave','Oscuro'].map((n,i)=>`<div><label>${n}</label>${inp('brand.colors.'+i,c[i],'color')}</div>`).join('')}</div></div>
+<div class="card"><h3>Dirección creativa</h3>${ta('concept','Concepto y estilo general','Ej. romántico, jardín, minimalista…')}${ta('ideas','Ideas creativas','Detalles, sorpresas, elementos con significado…')}${ta('mood','Moodboard (enlaces de Pinterest, imágenes de referencia)','Pega enlaces o describe referencias')}</div>
+<div class="card"><h3>Código de vestimenta</h3>${ta('dress_g','Invitados','Ej. formal, colores sugeridos y a evitar')}${ta('dress_f','Familia','Papás, padrinos, familia cercana')}${ta('dress_c','Cortejo y damas / caballeros de honor','Colores, estilos, accesorios')}</div>
+<div class="card"><h3>Dinámicas y espacios</h3>${ta('dyn','Dinámicas','Brindis, juegos, hora loca, libro de firmas, fotocabina…')}${ta('esp','Espacios','Ceremonia, cóctel, banquete, pista, lounge, mesa de dulces…')}</div>`}
+function exportar(){const b=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='boda-cisneros-perez-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500)}
+function importar(f){if(!f)return;const r=new FileReader();r.onload=()=>{try{const n=JSON.parse(r.result);if(!n.areas||!n.tasks)throw 0;if(!confirm('Esto reemplazará los datos actuales de este navegador con los del archivo. ¿Continuar?'))return;S=n;save();render()}catch(e){alert('El archivo no es un respaldo válido.')}};r.readAsText(f)}
+function itm(k,j,f,v){const l=S.areas[k].items;if(f=='del')l.splice(j,1);else l[j][f]=v;save();render()}
+function addI(k){const n=$('in').value.trim();if(!n)return;S.areas[k].items.push({n,p:+$('ip').value||0,on:true});save();render()}
+function addP(k){const n=$('pn').value.trim();if(!n)return;S.areas[k].providers.push({n,c:$('pc').value,pk:$('pk').value,price:+$('pp').value||0,inc:$('pi').value,r:+$('pr').value,nt:$('pt').value,st:'En cotización'});save();render()}
+const delP=(k,i)=>{S.areas[k].providers.splice(i,1);save();render()};
+function setSt(k,i,v){const x=S.areas[k],p=x.providers[i];p.st=v;if(v=='Contratado')x.quoted=p.price;save();render()}
+function render(){sync();if(S.brand)document.documentElement.style.setProperty('--ac',S.brand.colors[0]);const h=location.hash.slice(1)||'inicio';
+$('nav').innerHTML=[['inicio','Inicio'],['branding','Branding'],...AREAS.map(a=>[a[0],a[1]])].map(([k,n])=>`<a href="#${k}" class="${k==h?'on':''}">${n}</a>`).join('');
+$('app').innerHTML=h=='branding'?brand():AREAS.some(a=>a[0]==h)?area(h):home()}
+addEventListener('hashchange',()=>{render();scrollTo(0,0)});render();
+$('cloud').textContent='💾 Datos guardados en este navegador';
+</script></body></html>
